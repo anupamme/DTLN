@@ -17,9 +17,12 @@ import tensorflow as tf
 # The sampling rate of 16k is also fix.
 block_len = 512
 block_shift = 128
+in_buffer = np.zeros((block_len))
+out_buffer = np.zeros((block_len))
 # load model
 model = tf.saved_model.load('./pretrained_model/dtln_saved_model')
 infer = model.signatures["serving_default"]
+
 # load audio file at 16k fs (please change)
 audio,fs = sf.read('path_to_your_favorite_audio.wav')
 # check for sampling rate
@@ -28,8 +31,6 @@ if fs != 16000:
 # preallocate output audio
 out_file = np.zeros((len(audio)))
 # create buffer
-in_buffer = np.zeros((block_len))
-out_buffer = np.zeros((block_len))
 # calculate number of blocks
 num_blocks = (audio.shape[0] - (block_len-block_shift)) // block_shift
 # iterate over the number of blcoks        
