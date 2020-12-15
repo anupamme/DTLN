@@ -9,7 +9,7 @@ Created on Tue Jun 23 16:23:15 2020
 import soundfile as sf
 import numpy as np
 import tensorflow as tf
-
+import sys
 
 
 ##########################
@@ -24,7 +24,7 @@ model = tf.saved_model.load('./pretrained_model/dtln_saved_model')
 infer = model.signatures["serving_default"]
 
 # load audio file at 16k fs (please change)
-audio,fs = sf.read('path_to_your_favorite_audio.wav')
+audio,fs = sf.read(sys.argv[1])
 # check for sampling rate
 if fs != 16000:
     raise ValueError('This model only supports 16k sampling rate.')
@@ -49,7 +49,8 @@ for idx in range(num_blocks):
     # write block to output file
     out_file[idx*block_shift:(idx*block_shift)+block_shift] = out_buffer[:block_shift]
     
-    
+import pdb
+pdb.set_trace()
 # write to .wav file 
 sf.write('out.wav', out_file, fs) 
 

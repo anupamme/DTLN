@@ -11,7 +11,6 @@ import gevent
 from werkzeug.utils import secure_filename
 import pickle
 
-import utils
 
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'wav'}
@@ -28,7 +27,6 @@ import tensorflow as tf
 block_len = 512
 block_shift = 128
 in_buffer = np.zeros((block_len))
-out_buffer = np.zeros((block_len))
 # load model
 model = tf.saved_model.load('./pretrained_model/dtln_saved_model')
 infer = model.signatures["serving_default"]
@@ -59,6 +57,7 @@ def update_basic_detail_profile_image():
     # create buffer
     # calculate number of blocks
     num_blocks = (audio.shape[0] - (block_len-block_shift)) // block_shift
+    out_buffer = np.zeros((block_len))
     
     for idx in range(num_blocks):
         # shift values and write to buffer
@@ -74,10 +73,11 @@ def update_basic_detail_profile_image():
         out_buffer  += np.squeeze(out_block)
         # write block to output file
         out_file[idx*block_shift:(idx*block_shift)+block_shift] = out_buffer[:block_shift]
-    return jsonify(status=200, data=out_file)
+    return jsonify(status=200, data=out_file.tolist())
 
 if __name__ == "__main__":
     from gevent.pywsgi import WSGIServer
-    http_server = WSGIServer(('', 5000), app)
+    http_server = WSGIServer(('', 8098), app)
+    print('before initing to run on 8098')
     http_server.serve_forever()
-    log.info('after initing to run on 5000')
+    print('after initing to run on 8098')
